@@ -2,8 +2,10 @@ package com.mars.android20180115_2;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -19,7 +21,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
     ImageView img;
-    TextView tv;
+    TextView tv, tv2, tv3;
     ProgressBar pb;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,7 +29,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         img = (ImageView)findViewById(R.id.imageView);
         tv = (TextView)findViewById(R.id.textView);
+        tv2 = (TextView)findViewById(R.id.textView2);
+        tv3 = (TextView)findViewById(R.id.textView3);
         pb = (ProgressBar)findViewById(R.id.progressBar);
+
     }
     public void click1(View v)
     {
@@ -91,6 +96,56 @@ public class MainActivity extends AppCompatActivity {
             }
         }.start();
 
+    }
+
+    public void click2(View v)
+    {
+        MyTask task = new MyTask();
+        task.execute(10);
+    }
+    //建立AsyncTask
+    class MyTask extends AsyncTask<Integer, Integer, String>
+    {
+        @Override
+        //Integer... 參數不確定
+        //這個是在背後執行 副執行緒
+        protected String doInBackground(Integer... integers) {
+            int i;
+
+            for(i = 0 ;i<=integers[0];i++)
+            {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                Log.d("task","doinblackground, I:" + i);
+                publishProgress(i);//公佈進度
+            }
+            return "OKay";
+        }
+
+        @Override
+        //主執行緒執行
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        //主執行緒執行
+        //String s是接收doInBackground return的字串
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            tv3.setText(s);
+        }
+
+        //主執行緒執行
+        @Override
+        //接受publishProgress(i); i會傳到參數裡面
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            tv2.setText(String.valueOf(values[0]));
+        }
     }
 
 }
